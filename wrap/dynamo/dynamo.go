@@ -19,9 +19,11 @@ import (
 
 var (
 	client *dynamodb.Client
+)
 
-	MAX_COUNT_BULK_ITME        = 25
-	MAX_COUNT_TRANSACTION_ITEM = 100
+const (
+	max_count_bulk_item        = 25
+	max_count_transaction_item = 100
 )
 
 // TableBasics 는 dynamodb wrapping 한 기능들을 사용을 할 때, 다른 테이블을 실수로 사용하게 되는 것을 방지 하기 위함
@@ -253,7 +255,7 @@ func (t TableBasics) PutItemsWithBatch(c context.Context, items interface{}) err
 	}
 	// 최대 지원 수 이상으로 요청을 할 경우 오류 처리
 	// 외부에서 알아서 걸러서 넣도록 함 , 내부에서 처리를 할 수도 있지만, 외부에서 컨트롤 하는게 낫다고 생각되어
-	if rf.Len() > MAX_COUNT_BULK_ITME {
+	if rf.Len() > max_count_bulk_item {
 		log.Error().Interface("request_items_count", rf.Len()).Msg(common.ErrorRequestParameterExceed.Error())
 		return common.ErrorRequestParameterExceed
 	}
@@ -301,7 +303,7 @@ func (t TableBasics) PutItemsWithTransaction(c context.Context, items interface{
 
 	// 최대 지원 수 이상으로 요청을 할 경우 오류 처리
 	// 외부에서 알아서 걸러서 넣도록 함 , 내부에서 처리를 할 수도 있지만, 외부에서 컨트롤 하는게 낫다고 생각되어
-	if rf.Len() > MAX_COUNT_TRANSACTION_ITEM {
+	if rf.Len() > max_count_transaction_item {
 		log.Error().Interface("request_items_count", rf.Len()).Msg(common.ErrorRequestParameterExceed.Error())
 		return common.ErrorRequestParameterExceed
 	}

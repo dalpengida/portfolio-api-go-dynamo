@@ -16,15 +16,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	// sqs 의 경우 fifo 기능을 쓰기 위해서는 필수로 이름 끝에 fifo 가 붙어야 함
+	fifo_queue_suffix = ".fifo"
+)
+
 var (
 	client *sqs.Client
-
-	// sqs 의 경우 fifo 기능을 쓰기 위해서는 필수로 이름 끝에 fifo 가 붙어야 함
-	FIFO_QUEUE_SUFFIX = ".fifo"
 )
 
 type Queue struct {
-	QueueName string
+	queueName string
 	queueUrl  *string
 }
 
@@ -34,7 +36,7 @@ func init() {
 
 func New(queueName string) Queue {
 	return Queue{
-		QueueName: queueName,
+		queueName: queueName,
 	}
 }
 
@@ -57,10 +59,10 @@ func (q Queue) Create(c context.Context, schema *sqs.CreateQueueInput) error {
 // 단순하게 조회만 하는 것이 아니라 저장도 해주기 때문에 차라리 setUrl 로 함수명 변경해야 하나 고민 됨
 func (q *Queue) getUrl(c context.Context) (string, error) {
 	r, err := client.GetQueueUrl(c, &sqs.GetQueueUrlInput{
-		QueueName: aws.String(q.QueueName),
+		QueueName: aws.String(q.queueName),
 	})
 	if err != nil {
-		return "", fmt.Errorf("get url failed, queue : %s, %w", q.QueueName, err)
+		return "", fmt.Errorf("get url failed, queue : %s, %w", q.queueName, err)
 	}
 
 	log.Debug().Interface("response", r).Msg("get queue url success")
@@ -92,7 +94,7 @@ func (q *Queue) Send(c context.Context, obj interface{}) error {
 		return fmt.Errorf("queue message json marshaling faeild, %w", err)
 	}
 
-	if strings.Contains(q.QueueName, FIFO_QUEUE_SUFFIX) {
+	if strings.Contains(q.queueName, fifo_queue_suffix) {
 		return q.sendQueueFifo(c, string(json))
 	} else {
 		return q.sendQueue(c, string(json))

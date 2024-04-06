@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/dalpengida/portfolio-go-aws/common"
 	"github.com/dalpengida/portfolio-go-aws/config"
 	"github.com/rs/zerolog/log"
 )
@@ -16,8 +17,10 @@ func Test_CreateTopic(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	log.Debug().Msgf("[%s] success", common.FunctionName())
 }
 
+// Test_Publish 지정한 target topic 으로 데이터를 publish 기능 검사
 func Test_Publish(t *testing.T) {
 	c := sns.NewFromConfig(config.GetAws())
 
@@ -32,5 +35,5 @@ func Test_Publish(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	log.Debug().Interface("response", r).Msg("success")
+	log.Debug().Interface("response", r).Msgf("[%s] success", common.FunctionName())
 }

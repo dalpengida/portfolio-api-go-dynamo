@@ -11,10 +11,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var (
-	client    *sns.Client
-	topics    map[string]string
+const (
 	seperator = ":"
+)
+
+var (
+	client *sns.Client
+	topics map[string]string
 )
 
 type Notification struct {
