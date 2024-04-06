@@ -8,18 +8,17 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/dalpengida/portfolio-go-aws/common"
+	"github.com/dalpengida/portfolio-go-aws/config"
 	"github.com/rs/zerolog/log"
 )
 
 var (
-	awsConfig aws.Config
-	client    *dynamodb.Client
+	client *dynamodb.Client
 
 	MAX_COUNT_BULK_ITME        = 25
 	MAX_COUNT_TRANSACTION_ITEM = 100
@@ -32,13 +31,7 @@ type TableBasics struct {
 }
 
 func init() {
-	var err error
-	awsConfig, err = config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		panic(err)
-	}
-
-	client = dynamodb.NewFromConfig(awsConfig)
+	client = dynamodb.NewFromConfig(config.GetAws())
 }
 
 func New(tablename string) TableBasics {

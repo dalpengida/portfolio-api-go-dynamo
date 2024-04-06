@@ -7,18 +7,17 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/dalpengida/portfolio-go-aws/common"
+	"github.com/dalpengida/portfolio-go-aws/config"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
 var (
-	awsConfig aws.Config
-	client    *sqs.Client
+	client *sqs.Client
 
 	// sqs 의 경우 fifo 기능을 쓰기 위해서는 필수로 이름 끝에 fifo 가 붙어야 함
 	FIFO_QUEUE_SUFFIX = ".fifo"
@@ -30,13 +29,7 @@ type Queue struct {
 }
 
 func init() {
-	var err error
-	awsConfig, err = config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		panic(err)
-	}
-
-	client = sqs.NewFromConfig(awsConfig)
+	client = sqs.NewFromConfig(config.GetAws())
 }
 
 func New(queueName string) Queue {

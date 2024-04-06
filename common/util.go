@@ -1,6 +1,7 @@
 package common
 
 import (
+	"os"
 	"regexp"
 	"runtime"
 	"strings"
@@ -91,4 +92,9 @@ func SliceShift[T any](s []T, i int) ([]T, []T) {
 // 속도 관련해서는 util_test.go 에 benchmark 돌린게 있음
 func SliceCopy[T any](orig []T) []T {
 	return append(make([]T, 0, len(orig)), orig...)
+}
+
+// IsAWSLambda 환경이 aws lambda 인지 확인
+func IsAWSLambda() bool {
+	return os.Getenv("AWS_EXECUTION_ENV") == "AWS_Lambda_go1.x"
 }
