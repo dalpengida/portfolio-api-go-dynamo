@@ -31,6 +31,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.23.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.6 // indirect
 	github.com/aws/smithy-go v1.20.2 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/rs/zerolog v1.32.0
 )
