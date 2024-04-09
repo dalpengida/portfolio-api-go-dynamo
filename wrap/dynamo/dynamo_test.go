@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/dalpengida/portfolio-go-aws/common"
-	"github.com/dalpengida/portfolio-go-aws/model"
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,6 +14,13 @@ var (
 	test_table_name         = "portfolio-test"
 	test_success_msg_format = "[%s] success"
 )
+
+type testItem struct {
+	PK      string `dynamodbav:"pk" json:"pk"`
+	SK      string `dynamodbav:"sk" json:"sk"`
+	Val     string `dynamodbav:"val" json:"val"`
+	Updated int64  `dynamodbav:"updated" json:"updated"`
+}
 
 // Test_ListTable 는 테이블 리스트 조회 기능 테스트
 func Test_ListTable(t *testing.T) {
@@ -40,7 +46,7 @@ func Test_CreateTable(t *testing.T) {
 
 // PutItem 는 아이템을 dynamo 에 upsert
 func Test_PutItem(t *testing.T) {
-	item := model.TestItem{
+	item := testItem{
 		PK:      "pk",
 		SK:      "sk",
 		Val:     "val",
@@ -61,7 +67,7 @@ func Test_FindWithPK(t *testing.T) {
 	dynamoClient := New(test_table_name)
 
 	pk := "pk"
-	var sliceObj []model.TestItem
+	var sliceObj []testItem
 	err := dynamoClient.FindWithPK(context.TODO(), pk, &sliceObj)
 	if err != nil {
 		t.Fatal(err)
@@ -76,7 +82,7 @@ func Test_FindBeginsWith(t *testing.T) {
 
 	pk := "pk"
 	prefixSk := "sk"
-	var sliceObj []model.TestItem
+	var sliceObj []testItem
 	err := dynamoClient.FindBeginsWith(context.TODO(), pk, prefixSk, &sliceObj, 2)
 	if err != nil {
 		t.Fatal(err)
@@ -92,7 +98,7 @@ func Test_MustFindOne(t *testing.T) {
 	pk := "pk"
 	sk := "sk"
 
-	var obj model.TestItem
+	var obj testItem
 	err := dynamoClient.MustFindOne(context.TODO(), pk, sk, &obj)
 	if err != nil {
 		t.Fatal(err)
@@ -119,9 +125,9 @@ func Test_DeleteItem(t *testing.T) {
 
 // Test_BulkPutItems 는 한번에 여러건 넣을 수 있는 기능 검사
 func Test_BulkPutItems(t *testing.T) {
-	items := make([]model.TestItem, 0)
+	items := make([]testItem, 0)
 	for i := 0; i < 30; i++ {
-		items = append(items, model.TestItem{
+		items = append(items, testItem{
 			PK: "pk",
 			SK: fmt.Sprintf("bulksk#%d", i),
 		})
@@ -143,9 +149,9 @@ func Test_BulkPutItems(t *testing.T) {
 
 // Test_PutItemsWithTx 는 트랜잭션을 걸고 여러 item 을 넣을 경우 기능 검사
 func Test_PutItemsWithTx(t *testing.T) {
-	items := make([]model.TestItem, 0)
+	items := make([]testItem, 0)
 	for i := 0; i < 101; i++ {
-		items = append(items, model.TestItem{
+		items = append(items, testItem{
 			PK: "pk",
 			SK: fmt.Sprintf("bulksk#%d", i),
 		})

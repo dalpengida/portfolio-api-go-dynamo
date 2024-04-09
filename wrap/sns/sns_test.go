@@ -8,7 +8,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/dalpengida/portfolio-go-aws/common"
 	"github.com/dalpengida/portfolio-go-aws/config"
+	"github.com/dalpengida/portfolio-go-aws/wrap/sqs"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	test_topic = "portfolio"
 )
 
 func Test_CreateTopic(t *testing.T) {
@@ -36,4 +41,23 @@ func Test_Publish(t *testing.T) {
 	}
 
 	log.Debug().Interface("response", r).Msgf("[%s] success", common.FunctionName())
+}
+
+func Test_SubScribe(t *testing.T) {
+	testQueue := "portfolio"
+	topic := New(test_topic)
+
+	queue := sqs.New(testQueue)
+	queueArn, err := queue.GetArn(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = topic.SubscribeTopic(context.TODO(), "sqs", queueArn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	log.Debug().Msgf("[%s] success", common.FunctionName())
+
 }

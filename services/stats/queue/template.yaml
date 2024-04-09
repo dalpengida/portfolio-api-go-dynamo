@@ -1,0 +1,85 @@
+Transform: AWS::Serverless-2016-10-31
+Description: stats queue 
+
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+    Runtime: go1.x
+    Tracing: Active
+    Architectures:
+      - x86_64
+    CodeUri: .
+    Environment: 
+      Variables:
+        SERVICE_NAME: !Sub portfolio-${Stage}-stats-queue-function
+        REGION: !Ref "AWS::Region"
+        STAGE: !Ref Stage
+       
+  Api:
+    TracingEnabled: true
+
+Parameters:
+  Stage:
+    Type: String
+
+#  SecurityGroupId:
+#    Type: String
+#  SubnetIds:
+#    Type: CommaDelimitedList
+
+  StreamArn:
+    Type: String
+
+Resources:
+  LambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Lambda policy
+      Path: /
+      PolicyDocument:
+        Version: '2024-04-09'
+        Statement:
+          -
+            Sid: DynamoDBPolicy
+            Effect: Allow
+            Action:
+              - 'dynamodb:*'
+            Resource:
+              - '*'
+          -
+            Sid: SNSPolicy
+            Effect: "Allow"
+            Action:
+                - "sns:*"
+            Resource: '*'
+          -
+            Sid: SQSPolicy
+            Effect: "Allow"
+            Action:
+                - "sqs:*"
+            Resource: '*'
+
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub portfolio-${Stage}-stats.fifo
+      DelaySeconds: 0
+      FifoQueue: true
+      MessageRetentionPeriod: 1209600
+      VisibilityTimeout: 30
+
+  AccountStreamFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      Handler: main
+      Policies:
+        - !Ref LambdaPolicy
+        - VPCAccessPolicy: {}
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt Queue.Arn
+            BatchSize: 10
+            

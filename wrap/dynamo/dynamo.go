@@ -24,6 +24,8 @@ var (
 const (
 	max_count_bulk_item        = 25
 	max_count_transaction_item = 100
+
+	default_tablename = "portfolio"
 )
 
 // TableBasics 는 dynamodb wrapping 한 기능들을 사용을 할 때, 다른 테이블을 실수로 사용하게 되는 것을 방지 하기 위함
@@ -40,6 +42,10 @@ func New(tablename string) TableBasics {
 	return TableBasics{
 		tableName: tablename,
 	}
+}
+
+func NewDefault() TableBasics {
+	return TableBasics{tableName: default_tablename}
 }
 
 // CreateTable 는 테이블 생성을 해주는 함수

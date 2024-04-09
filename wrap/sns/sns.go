@@ -106,7 +106,12 @@ func (n Notification) Publish(c context.Context, message string) error {
 	return nil
 }
 
+// SubscribeTopic 지정 topic 에 구독을 신청을 함
 func (n Notification) SubscribeTopic(c context.Context, protocol, endpoint string) error {
+	if !isValidSubscribeProtocol(protocol) {
+		return fmt.Errorf("invalid protocol, %s", protocol)
+	}
+
 	r, err := client.Subscribe(c, &sns.SubscribeInput{
 		// http, https, email, email-json, sms, sqs, application, lambda, firehouse
 		TopicArn:              aws.String(n.targetArn),
@@ -135,4 +140,14 @@ func UnsubscribeTopic(c context.Context, subscribeArn string) error {
 	log.Debug().Interface("response", r).Msg("unsubsribe success")
 
 	return nil
+}
+
+// isValidSubscribeProtocol topic 구독 가능한 프로토콜인지 확인
+func isValidSubscribeProtocol(protocol string) bool {
+	switch protocol {
+	case "http", "https", "email", "email-json", "sms", "sqs", "application", "lambda", "firehouse":
+		return true
+	default:
+		return false
+	}
 }

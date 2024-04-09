@@ -40,6 +40,31 @@ func New(queueName string) Queue {
 	}
 }
 
+// GetArn queue url 정보를 가지고 arn 정보를 다시 조회를 함, 평상시엔 쓸일 없지만, queue 를 sns 구독에 붙여 보기 위함
+// cloudformation으로 해야 하는 게 맞지만, sdk 에 기능이 있어서 한번 해봄
+func (q Queue) GetArn(c context.Context) (string, error) {
+	if q.queueUrl == nil {
+		_, err := q.getUrl(c)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	r, err := client.GetQueueAttributes(c, &sqs.GetQueueAttributesInput{
+		QueueUrl: q.queueUrl,
+		AttributeNames: []types.QueueAttributeName{
+			types.QueueAttributeName(*aws.String("All")),
+		},
+	})
+	if err != nil {
+		return "", fmt.Errorf("get queue attribte failed, %w", err)
+	}
+
+	log.Debug().Interface("response", r).Msg("get queue attribute success")
+
+	return r.Attributes["QueueArn"], nil
+}
+
 // Create queue 생성
 func (q Queue) Create(c context.Context, schema *sqs.CreateQueueInput) error {
 	if schema == nil {

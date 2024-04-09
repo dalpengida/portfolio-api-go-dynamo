@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // Trace 는 현재 호출된 함수 라인등 정보를 가져옴
@@ -97,4 +98,16 @@ func SliceCopy[T any](orig []T) []T {
 // IsAWSLambda 환경이 aws lambda 인지 확인
 func IsAWSLambda() bool {
 	return os.Getenv("AWS_EXECUTION_ENV") == "AWS_Lambda_go1.x"
+}
+
+// IsDiffDate 는 unixTimestamp를 받아서 같은 날짜인지 확인
+func IsDiffDate(t1, t2 int64) bool {
+	tt1 := time.Unix(t1, 0)
+	tt2 := time.Unix(t2, 0)
+
+	if tt1.Year() != tt2.Year() || tt1.Month() != tt2.Month() || tt1.Day() != tt2.Day() {
+		return true
+	}
+
+	return false
 }
